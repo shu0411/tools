@@ -56,19 +56,30 @@ def scrape_team(session: requests.Session, team_id: int) -> dict | None:
             span = year_tag.find("span", class_="left_side_menu_link_list_content")
             year_text = span.get_text(strip=True).replace("年チーム", "") if span else ""
 
-        region_text = ""
-        if region_tag:
-            span = region_tag.find("span", class_="left_side_menu_link_item_content")
-            region_text = span.get_text(strip=True) if span else ""
-
         university_text = ""
+        katsudo_kyoten = ""
         detail_tag = soup.find(class_="team_detail_info_name_detail")
         if detail_tag:
             for row in detail_tag.find_all(class_="table_row"):
                 cells = row.find_all(class_="table_cell")
-                if len(cells) >= 2 and cells[0].get_text(strip=True) == "大学":
-                    university_text = cells[1].get_text(strip=True)
-                    break
+                if len(cells) >= 2:
+                    key = cells[0].get_text(strip=True)
+                    val = cells[1].get_text(strip=True)
+                    if key == "大学":
+                        university_text = val
+                    elif key == "活動拠点":
+                        katsudo_kyoten = val
+
+        # ①活動拠点があればそれを使用、②なければメニューの地域を使用（東京→関東に変換）
+        if katsudo_kyoten:
+            region_text = katsudo_kyoten
+        else:
+            region_text = ""
+            if region_tag:
+                span = region_tag.find("span", class_="left_side_menu_link_item_content")
+                region_text = span.get_text(strip=True) if span else ""
+            if region_text == "東京":
+                region_text = "関東"
 
         return {
             "id": team_id,
