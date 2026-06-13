@@ -22,7 +22,7 @@ import re
 import sys
 import argparse
 
-from unidol.unidol_utils import BASE_URL, SLEEP_SEC, FIELDNAMES, hiragana_to_katakana
+from unidol_utils import BASE_URL, SLEEP_SEC, FIELDNAMES, hiragana_to_katakana
 
 
 def scrape_team(session: requests.Session, team_id: int) -> dict | None:
